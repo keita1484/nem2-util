@@ -1,0 +1,20 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "buffer": "^5.4.3",
+    "nem2-sdk": "^0.14.4",
+    "rxjs": "^6.5.3",
+    "ws": "^7.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.8"
+  }
+}
