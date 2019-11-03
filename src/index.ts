@@ -40,7 +40,7 @@ const commandDifs = [
 const sections= [
   {
     header: 'USAGE',
-    content: 'node index.js <subcommand>'
+    content: 'ts-node index.js <subcommand>'
   },
   {
     header: 'SUBCOMMANDS',

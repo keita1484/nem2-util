@@ -4,7 +4,8 @@
 2. `cd nem2-util`
 3. `npm install`
 
-## NEM2-UTIL Scripts/Commands
+## NEM2-UTIL USAGE
+`ts-node index.js <subcommand>`
 
 Change to the `/src` directory and execute the following command
 
