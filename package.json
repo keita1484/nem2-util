@@ -10,6 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "buffer": "^5.4.3",
+    "command-line-args": "^5.1.1",
+    "command-line-usage": "^6.0.2",
+    "dotenv": "^8.2.0",
     "nem2-sdk": "^0.14.4",
     "rxjs": "^6.5.3",
     "ws": "^7.1.2"
