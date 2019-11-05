@@ -14,5 +14,6 @@ Change to the `/src` directory and execute the following command
 | -c, --create string            |   Input 'metadata' or 'namespace'. This is a required field |
 | -v, --value string                |   Input the account metadata value |
 | -r, --rootname string                |   Input the root nmaespace name |
-| -s, --subname string     |   Input the sub nmaespace name |
+| --subname01 string     |   Input the sub nmaespace layer1 name |
+| --subname02 string     |   Input the sub nmaespace layer2 name |
 | -h, --help string      |   Show command usage |
