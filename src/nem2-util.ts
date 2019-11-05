@@ -119,11 +119,12 @@ import {
   // ******************************************************
   // Get Namespace & Sub Namespace
   // ******************************************************
-  export const registerNamespaces = (rootName: string, subName?: string) => {
+  export const registerNamespaces = (rootName: string, subName01?: string, subName02?: string) => {
     const txHttp = new TransactionHttp(CATAPULT_URL);
     const name = {
       rootName: rootName,
-      subName: subName
+      subName01: subName01,
+      subName02: subName02
     };    
     let namespaceId: NamespaceId;
     const ownerAccount: Account = Account.createFromPrivateKey(MASTER_PRIVATE_KEY, getNetworkType());
@@ -138,10 +139,11 @@ import {
     );
 
     let aggregateTx: AggregateTransaction;
-    let registerSubRootNsTx: NamespaceRegistrationTransaction;
+    let registerSubRootNs01Tx: NamespaceRegistrationTransaction;
+    let registerSubRootNs02Tx: NamespaceRegistrationTransaction;
     let addressAliasTx: AliasTransaction;
 
-    if(name.subName === undefined) {
+    if(name.subName01 === undefined) {
       namespaceId = new NamespaceId(name.rootName); 
       addressAliasTx = AliasTransaction.createForAddress(
         Deadline.create(),
@@ -160,11 +162,11 @@ import {
         [],
       );
 
-    } else {
-      namespaceId = new NamespaceId(name.rootName + '.' + name.subName); 
-      registerSubRootNsTx = NamespaceRegistrationTransaction.createSubNamespace(
+    } else if (name.subName01 !== undefined && name.subName02 === undefined){
+      namespaceId = new NamespaceId(name.rootName + '.' + name.subName01); 
+      registerSubRootNs01Tx = NamespaceRegistrationTransaction.createSubNamespace(
         Deadline.create(),
-        name.subName,
+        name.subName01,
         name.rootName,
         getNetworkType(),
       );
@@ -179,7 +181,40 @@ import {
         Deadline.create(),
         [
           registerRootNsTx.toAggregate(ownerAccount.publicAccount),
-          registerSubRootNsTx.toAggregate(ownerAccount.publicAccount),
+          registerSubRootNs01Tx.toAggregate(ownerAccount.publicAccount),
+          addressAliasTx.toAggregate(ownerAccount.publicAccount)
+        ],
+        getNetworkType(),
+        [],
+      );
+
+    } else {
+      namespaceId = new NamespaceId(name.rootName + '.' + name.subName01  + '.' + name.subName02); 
+      registerSubRootNs01Tx = NamespaceRegistrationTransaction.createSubNamespace(
+        Deadline.create(),
+        name.subName01,
+        name.rootName,
+        getNetworkType(),
+      );
+      registerSubRootNs02Tx = NamespaceRegistrationTransaction.createSubNamespace(
+        Deadline.create(),
+        name.subName02,
+        name.rootName + '.' + name.subName01,
+        getNetworkType(),
+      );
+      addressAliasTx = AliasTransaction.createForAddress(
+        Deadline.create(),
+        AliasAction.Link,
+        namespaceId,
+        linkingAddress,
+        getNetworkType()
+      );
+      aggregateTx = AggregateTransaction.createComplete(
+        Deadline.create(),
+        [
+          registerRootNsTx.toAggregate(ownerAccount.publicAccount),
+          registerSubRootNs01Tx.toAggregate(ownerAccount.publicAccount),
+          registerSubRootNs02Tx.toAggregate(ownerAccount.publicAccount),
           addressAliasTx.toAggregate(ownerAccount.publicAccount)
         ],
         getNetworkType(),

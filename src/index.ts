@@ -23,8 +23,12 @@ const commandDifs = [
     description: 'root nmaespace name'
   },
   {
-    name: 'subname',
-    alias: 's',
+    name: 'subname01',
+    Type: String,
+    description: 'sub nmaespace name'
+  },
+  {
+    name: 'subname02',
     Type: String,
     description: 'sub nmaespace name'
   },
@@ -64,10 +68,14 @@ const sections= [
         description: 'Input the root nmaespace name'
       },
       {
-        name: 'subname',
-        alias: 's',
+        name: 'subname01',
         typeLabel: '{underline string}',
-        description: 'Input the sub nmaespace name'
+        description: 'Input the sub nmaespace layer1 name'
+      },
+      {
+        name: 'subname02',
+        typeLabel: '{underline string}',
+        description: 'Input the sub nmaespace layer2 name'
       },
       {
         name: 'help',
