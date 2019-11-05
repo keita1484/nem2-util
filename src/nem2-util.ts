@@ -250,7 +250,7 @@ import {
     const name = {
       rootName: rootName,
       subName01: subName01,
-      subName02: subName02
+      subName02: subName02.toLowerCase()
     };    
     let namespaceId: NamespaceId;
     const ownerAccount: Account = Account.createFromPrivateKey(MASTER_PRIVATE_KEY, getNetworkType());

@@ -1,4 +1,4 @@
-import { sendMetadataTx, registerNamespaces } from './nem2-util';
+import { sendMetadataTx, registerNamespaces, registerNsMosaic } from './nem2-util';
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
 
@@ -117,10 +117,10 @@ switch (options.create) {
     sendMetadataTx(options.value);
     break;
   case 'namespace':
-    registerNamespaces(options.rootname, options.subname);
+    registerNamespaces(options.rootname, options.subname01, options.subname02);
     break;
   case 'nsmosaic':
-    registerNamespaces(options.rootname, options.subname);
+    registerNsMosaic(options.rootname, options.subname01, options.subname02);
     break;
   default:
     console.log('Please add \'--help\' option for usage');
