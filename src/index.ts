@@ -8,7 +8,7 @@ const commandDifs = [
     name: 'create',
     alias: 'c',
     Type: String,
-    description: 'Create \'metadata\' or \'namespace\''
+    description: 'Create \'metadata\' or \'namespace\' or \'nsmosaic\''
   },
   {
     name: 'value',
@@ -53,7 +53,7 @@ const sections= [
         name: 'create',
         alias: 'c',
         typeLabel: '{underline string}',
-        description: 'Input \'metadata\' or \'namespace\'. This is a required field'
+        description: 'Input \'metadata\' or \'namespace\' or \'nsmosaic\'. This is a required field'
       },
       {
         name: 'value',
@@ -83,6 +83,23 @@ const sections= [
         description: 'Show command usage'
       },
     ]
+  },
+  {
+    header: 'EXAMPLE',
+    optionList: [
+      {
+        name: 'metadata',
+        description: 'ts-node index.ts -c metadata -v AGREE'
+      },
+      {
+        name: 'namespace',
+        description: 'ts-node index.ts -c namespace -r dog --subname01 shiba --subname02 male'
+      },
+      {
+        name: 'nsmosaic',
+        description: 'ts-node index.ts -c namespace -r ticket --subname01 2019 --subname02 event'
+      }
+    ]
   }
 ];
 
@@ -100,6 +117,9 @@ switch (options.create) {
     sendMetadataTx(options.value);
     break;
   case 'namespace':
+    registerNamespaces(options.rootname, options.subname);
+    break;
+  case 'nsmosaic':
     registerNamespaces(options.rootname, options.subname);
     break;
   default:
