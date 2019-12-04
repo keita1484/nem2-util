@@ -11,17 +11,16 @@ Change to the `/src` directory and execute the following command
 
 | Command                       |  Description  |
 | ----------------------------- | ------------- |
-| -c, --create string            |   Input 'metadata' or 'namespace' or 'nsmosaic'. This is a required field |
-| -v, --value string                |   Input the account metadata value |
-| -r, --rootname string                |   Input the root nmaespace name |
-| --subname01 string     |   Input the sub nmaespace layer1 name |
-| --subname02 string     |   Input the sub nmaespace layer2 name |
+| -c, --create string            |   Input 'namespace' or 'nsmosaic'. This is a required field |
+| -r, --rootname string                |   Input the root namaespace name |
+| --sn1 string     |   Input the sub namaespace layer1 name |
+| --sn2 string     |   Input the sub namaespace layer2 name |
+| -r, --duration number     |   Input the duration for renting namespace |
+| -a, --ammount number     |   Input the mosaic supply ammount |
 | -h, --help string      |   Show command usage |
 
 ## EXAMPLE
-* metadata
-`ts-node index.ts -c metadata -v AGREE`
 * namespace
-`ts-node index.ts -c namespace -r dog --subname01 shiba --subname02 male`
+`ts-node index.ts -c ns -r dog --sn1 shiba --sn2 male -d 1000`
 * namespace & mosaic
-`ts-node index.ts -c namespace -r ticket --subname01 2019 --subname02 event`
+`ts-node index.ts -c nsmosaic -r tickets --sn1 2019 --sn2 event -d 2000 -a 20`
