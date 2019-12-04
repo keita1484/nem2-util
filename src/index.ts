@@ -1,4 +1,4 @@
-import { sendMetadataTx, registerNamespaces, registerNsMosaic } from './nem2-util';
+import { registerNamespaces, registerNsMosaic } from './nem2-util';
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
 
@@ -96,9 +96,6 @@ if(options.help) {
 }
 
 switch (options.create) {
-  case 'accountmeta':
-    sendMetadataTx(options.key, options.value);
-    break;
   case 'ns':
     registerNamespaces(options.rootname, options.duration, options.sn1, options.sn2);
     break;
