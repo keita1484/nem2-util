@@ -8,29 +8,49 @@ const commandDifs = [
     name: 'create',
     alias: 'c',
     Type: String,
-    description: 'Create \'metadata\' or \'namespace\' or \'nsmosaic\''
+    description: '\'accountmeta\' or \'ns\' or \'nsmosaic\''
+  },
+  {
+    name: 'key',
+    alias: 'k',
+    Type: String,
+    description: 'account metadata key'
   },
   {
     name: 'value',
     alias: 'v',
     Type: String,
-    description: 'create account metadata value'
+    description: 'account metadata value'
   },
   {
     name: 'rootname',
     alias: 'r',
     Type: String,
-    description: 'root nmaespace name'
+    description: 'root namaespace name'
   },
   {
-    name: 'subname01',
+    name: 'sn1',
     Type: String,
-    description: 'sub nmaespace name'
+    description: 'sub namaespace01 name'
   },
   {
-    name: 'subname02',
+    name: 'sn2',
     Type: String,
-    description: 'sub nmaespace name'
+    description: 'sub namaespace02 name'
+  },
+  {
+    name: 'duration',
+    alias: 'd',
+    type: Number,
+    defaultValue: 1000,
+    description: 'duration for renting namespace'
+  },
+  {
+    name: 'ammount',
+    alias: 'a',
+    type: Number,
+    defaultValue: 10,
+    description: 'mosaic supply ammount'
   },
   {
     name: 'help',
@@ -48,56 +68,20 @@ const sections= [
   },
   {
     header: 'SUBCOMMANDS',
-    optionList: [
-      {
-        name: 'create',
-        alias: 'c',
-        typeLabel: '{underline string}',
-        description: 'Input \'metadata\' or \'namespace\' or \'nsmosaic\'. This is a required field'
-      },
-      {
-        name: 'value',
-        alias: 'v',
-        typeLabel: '{underline string}',
-        description: 'Input the account metadata value'
-      },
-      {
-        name: 'rootname',
-        alias: 'r',
-        typeLabel: '{underline string}',
-        description: 'Input the root nmaespace name'
-      },
-      {
-        name: 'subname01',
-        typeLabel: '{underline string}',
-        description: 'Input the sub nmaespace layer1 name'
-      },
-      {
-        name: 'subname02',
-        typeLabel: '{underline string}',
-        description: 'Input the sub nmaespace layer2 name'
-      },
-      {
-        name: 'help',
-        alias: 'h',
-        description: 'Show command usage'
-      },
-    ]
+    optionList: commandDifs  
   },
   {
     header: 'EXAMPLE',
     optionList: [
       {
-        name: 'metadata',
-        description: 'ts-node index.ts -c metadata -v AGREE'
+        name: 'Namespaces',
+        type: Boolean,
+        description: 'ts-node index.ts -c ns -r dog --sn1 shiba --sn2 male -d 1000'
       },
       {
-        name: 'namespace',
-        description: 'ts-node index.ts -c namespace -r dog --subname01 shiba --subname02 male'
-      },
-      {
-        name: 'nsmosaic',
-        description: 'ts-node index.ts -c namespace -r ticket --subname01 2019 --subname02 event'
+        name: 'Namespaces & Mosaic',
+        type: Boolean,
+        description: 'ts-node index.ts -c nsmosaic -r tickets --sn1 2019 --sn2 event -d 2000 -a 20'
       }
     ]
   }
@@ -112,15 +96,14 @@ if(options.help) {
 }
 
 switch (options.create) {
-  case 'metadata':
-    console.log(options.value);
-    sendMetadataTx(options.value);
+  case 'accountmeta':
+    sendMetadataTx(options.key, options.value);
     break;
-  case 'namespace':
-    registerNamespaces(options.rootname, options.subname01, options.subname02);
+  case 'ns':
+    registerNamespaces(options.rootname, options.duration, options.sn1, options.sn2);
     break;
   case 'nsmosaic':
-    registerNsMosaic(options.rootname, options.subname01, options.subname02);
+    registerNsMosaic(options.rootname, options.duration, options.ammount, options.sn1, options.sn2);
     break;
   default:
     console.log('Please add \'--help\' option for usage');
