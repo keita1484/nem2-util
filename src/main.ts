@@ -4,7 +4,11 @@ import {
   AggregateTransaction,
   AliasAction,
   AliasTransaction,
+  CosignatureSignedTransaction,
+  CosignatureTransaction,
   Deadline, 
+  EmptyMessage,
+  HashLockTransaction,
   MultisigAccountModificationTransaction,
   Mosaic,
   MosaicAliasTransaction,
@@ -16,22 +20,19 @@ import {
   MosaicSupplyChangeTransaction,
   NamespaceId,
   NamespaceRegistrationTransaction,
+  NetworkCurrencyMosaic,
   PlainMessage,
   SignedTransaction,
   Transaction,
+  TransactionMapping,
+  TransferTransaction,
   Listener,
   UInt64,
   MultisigCosignatoryModification,
   CosignatoryModificationAction,
-  TransferTransaction,
-  EmptyMessage,
-  HashLockTransaction,
-  NetworkCurrencyMosaic,
-  CosignatureTransaction,
-  TransactionHttp,
-  NetworkType
   } from 'nem2-sdk';
-  import {filter, map, mergeMap} from "rxjs/operators";
+  import {filter, map, mergeMap, max} from "rxjs/operators";
+  import {merge} from "rxjs";
   import { txHttp, getNetworkType, listenerUtil } from './nem2-util';
   require('dotenv').config({path: __dirname + '/../.env'});
   const { GENERATION_HASH, CATAPULT_URL, MASTER_PRIVATE_KEY } = process.env;
@@ -154,33 +155,33 @@ import {
   }
 
 
-  export const transferTx = () => {
-    const recipientAddress = Address.createFromRawAddress('TAJCI46QSRGJCWJCAXN4ZL7EDPHEZR6HIYEEUPSH');
+  export const transferTx = async () => {
+    const recipientAddress = Address.createFromRawAddress('TC56N3TVMZN5XOK3BPOPG7FLBXPBPCD7CAJ6HA7V');
 
     const transferTransaction = TransferTransaction.create(
       Deadline.create(),
       recipientAddress,
-      [NetworkCurrencyMosaic.createRelative(100000000)],
+      [NetworkCurrencyMosaic.createRelative(100)],
       PlainMessage.create('This is a test message'),
-      NetworkType.TEST_NET);
+      getNetworkType(),
+      UInt64.fromUint(1000000));
     /* end block 01 */
 
     /* start block 02 */
-    const privateKey = '94ACB9FB6CFBF8926F2AD6D345A8FD2BB705FF89E4AE26AB80862A5FA55C9175';
+    const privateKey = 'CC2907C8DD2AF35DC686B1D625F4E3347094E50FCCC66AEA54763AD861E82C2E';
     const account = Account.createFromPrivateKey(privateKey, getNetworkType());
-    const networkGenerationHash = '69668447A52FBC498FBE212E536FD3E3A2CFFADA1CCC333B8560C18661017C16';
-
-    const signedTransaction = account.sign(transferTransaction, networkGenerationHash);
+    const networkGenerationHash = '8B9D9872BA89A93C6A28AE0EA11A765E04CD956EC2C5A125E3A779ACE883FE46';
+    const signedTx = account.sign(transferTransaction, networkGenerationHash);
     /* end block 02 */
 
-    /* start block 03 */
-    const transactionHttp = new TransactionHttp('http://localhost:3000');
-    transactionHttp
-        .announce(signedTransaction)
-        .subscribe(x => {
-          console.log(signedTransaction.hash);
-          console.log(x);
-        }, err => console.error(err));
+    txHttp
+      .announce(signedTx)
+      .subscribe(() => {
+        console.log('[Transaction announced]');
+        console.log('Endpoint: %s/transaction/%s', CATAPULT_URL, signedTx.hash);
+      },err => {
+        console.error('txHttp error:', err);
+      });
   }
   
 
@@ -222,6 +223,7 @@ import {
       name.rootName,
       UInt64.fromUint(duration),
       getNetworkType(),
+      UInt64.fromUint(1000000)
     );
     // モザイク定義
     const nonce: MosaicNonce = MosaicNonce.createRandom();
@@ -237,6 +239,7 @@ import {
       0,
       UInt64.fromUint(0),
       getNetworkType(),
+      UInt64.fromUint(1000000)
     );
     const mosaicChangeTx: MosaicSupplyChangeTransaction = MosaicSupplyChangeTransaction.create(
       Deadline.create(),
@@ -244,6 +247,7 @@ import {
       MosaicSupplyChangeAction.Increase,
       UInt64.fromUint(ammount),
       getNetworkType(),
+      UInt64.fromUint(1000000)
     );
 
     let aggregateTx: AggregateTransaction;
@@ -259,6 +263,7 @@ import {
         namespaceId,
         mosaicId,
         getNetworkType(),
+        UInt64.fromUint(1000000)
       );
       aggregateTx = AggregateTransaction.createComplete(
         Deadline.create(),
@@ -270,6 +275,7 @@ import {
         ],
         getNetworkType(),
         [],
+        UInt64.fromUint(1000000)
       );
 
     } else if (name.subName01 !== undefined && name.subName02 === undefined){
@@ -279,6 +285,7 @@ import {
         name.subName01,
         name.rootName,
         getNetworkType(),
+        UInt64.fromUint(1000000)
       );
       moisacAliasTx = MosaicAliasTransaction.create(
         Deadline.create(),
@@ -286,6 +293,7 @@ import {
         namespaceId,
         mosaicId,
         getNetworkType(),
+        UInt64.fromUint(1000000)
       );
       aggregateTx = AggregateTransaction.createComplete(
         Deadline.create(),
@@ -298,7 +306,7 @@ import {
         ],
         getNetworkType(),
         [],
-      );
+        UInt64.fromUint(1000000));
 
     } else {
       namespaceId = new NamespaceId(name.rootName + '.' + name.subName01  + '.' + name.subName02); 
@@ -307,12 +315,14 @@ import {
         name.subName01,
         name.rootName,
         getNetworkType(),
+        UInt64.fromUint(1000000)
       );
       registerSubRootNs02Tx = NamespaceRegistrationTransaction.createSubNamespace(
         Deadline.create(),
         name.subName02,
         name.rootName + '.' + name.subName01,
         getNetworkType(),
+        UInt64.fromUint(1000000)
       );
       moisacAliasTx = MosaicAliasTransaction.create(
         Deadline.create(),
@@ -320,6 +330,7 @@ import {
         namespaceId,
         mosaicId,
         getNetworkType(),
+        UInt64.fromUint(1000000)
       );
       aggregateTx = AggregateTransaction.createComplete(
         Deadline.create(),
@@ -333,6 +344,7 @@ import {
         ],
         getNetworkType(),
         [],
+        UInt64.fromUint(1000000)
       );
     }
     
@@ -352,8 +364,9 @@ import {
   // ******************************************************
   // 2. Convert asset multisig account
   // ******************************************************
-  export const convertAssetAccount = async () => {
-    const masterAccount = Account.createFromPrivateKey(MASTER_PRIVATE_KEY, getNetworkType());
+  export const convertAssetAccount = () => {
+    const listener = new Listener(CATAPULT_URL);
+
     const generateAccount = (tag: string) => {
       const account = Account.generateNewAccount(getNetworkType());
       console.log(`--- account info ${tag} ---`);
@@ -362,68 +375,75 @@ import {
       console.log(`private key: ${account.privateKey}\n`);
       return account;
     }
-    const assetAccount = generateAccount('Asset account');
 
-    const sendCurrencyTx = (dist: Address) => {
-      const tx = TransferTransaction.create(
-        Deadline.create(),
-        dist,
-        [NetworkCurrencyMosaic.createRelative(10)],
-        EmptyMessage,
-        getNetworkType()
-      );
-      return tx;
-    }
+    const masterAccount = Account.createFromPrivateKey(MASTER_PRIVATE_KEY, getNetworkType());
+    const multisigAccount = generateAccount('multisig account');
+
+    const emptyTransaction = TransferTransaction.create(
+      Deadline.create(),
+      multisigAccount.address,
+      [],
+      EmptyMessage,
+      getNetworkType(),
+    );
 
     const convertIntoMultisigTx = MultisigAccountModificationTransaction.create(
       Deadline.create(),
       1,
       1,
       [
-        new MultisigCosignatoryModification(CosignatoryModificationAction.Add, masterAccount.publicAccount)
+        masterAccount.publicAccount,
       ],
-      getNetworkType()
+      [],
+      getNetworkType(),
     );
-
-    const sendCurrencyToMultisigAccount = sendCurrencyTx(assetAccount.address);
 
     const aggregateTx = AggregateTransaction.createComplete(
       Deadline.create(),
       [
-        // sendCurrencyToMultisigAccount.toAggregate(masterAccount.publicAccount),
-        convertIntoMultisigTx.toAggregate(assetAccount.publicAccount)
+        emptyTransaction.toAggregate(masterAccount.publicAccount),
+        convertIntoMultisigTx.toAggregate(multisigAccount.publicAccount),
       ],
       getNetworkType(),
-      []
+      [],
+      UInt64.fromUint(107000),
     );
 
-    const confirmed: Transaction = await new Promise((resolve, reject) => {
-      try {
-        listenerUtil({
-          address: assetAccount.address,
-          hooks: {
-            onOpen: () => {
-              const signedTx: SignedTransaction = masterAccount.signTransactionWithCosignatories(
-                aggregateTx,
-                [assetAccount],
-                GENERATION_HASH,
-              );
-              console.log(`txHash: ${signedTx.hash}`);
-              txHttp.announce(signedTx);
-            },
-            onStatus: err => {
-              reject(new Error(err.status));
-            },
-            onConfirmed: info => {
-              resolve(info);
-            },
-          },
-        });
-      } catch (err) {
-        reject(err);
-      }
+    const signedTx = masterAccount.signTransactionWithCosignatories(
+      aggregateTx,
+      [multisigAccount],
+      GENERATION_HASH
+    );
+
+    console.log(`txHash: ${signedTx.hash}`);
+
+    listener.open().then(() => {
+      listener.status(masterAccount.address)
+      .pipe(filter(error => error.hash === signedTx.hash))
+      .subscribe(err => {
+        console.error(err);
+        listener.close();
+      },
+      err => {
+        console.error(err);
+      });
+      listener.unconfirmedAdded(masterAccount.address)
+      .pipe(
+        filter(transaction => (transaction.transactionInfo !== undefined)
+        && transaction.transactionInfo.hash === signedTx.hash)
+      ).subscribe(ignored => {
+        console.log('transaction status changed unconfirmed');
+        listener.close();
+      });
+
+      txHttp.announce(signedTx).subscribe(x => {
+        console.log(x);
+      }, err => {
+        console.error(err);
+      })
     });
-  }
+  };
+
 
 
   // ******************************************************
@@ -437,8 +457,8 @@ import {
       recipientAddress,
       [new Mosaic( new MosaicId(mosaicId), UInt64.fromUint(1))],
       EmptyMessage,
-      getNetworkType()
-    );
+      getNetworkType(),
+      UInt64.fromUint(1000000));
 
     const confirmed: Transaction = await new Promise((resolve, reject) => {
       try {
@@ -482,12 +502,10 @@ import {
       Deadline.create(),
       0,
       0,
-      [
-        new MultisigCosignatoryModification(CosignatoryModificationAction.Add, newOwnerAccount.publicAccount),
-        new MultisigCosignatoryModification(CosignatoryModificationAction.Remove, currentOwnerAccount.publicAccount)
-      ],
-      getNetworkType()
-    );
+      [ newOwnerAccount.publicAccount ],
+      [ currentOwnerAccount.publicAccount ],
+      getNetworkType(),
+      UInt64.fromUint(1000000));
 
     const aggregateTx = AggregateTransaction.createBonded(
       Deadline.create(),
@@ -495,18 +513,18 @@ import {
         modifyMultisigTx.toAggregate(assetAccount.publicAccount)
       ],
       getNetworkType(),
-      []
-    );
+      [],
+      UInt64.fromUint(1000000));
 
     const signedTx = currentOwnerAccount.sign(aggregateTx, GENERATION_HASH);
-    console.log(signedTx.hash);
 
     const hashLockTx = HashLockTransaction.create(
       Deadline.create(),
       NetworkCurrencyMosaic.createRelative(10),
       UInt64.fromUint(480),
       signedTx,
-      getNetworkType()
+      getNetworkType(),
+      UInt64.fromUint(1000000)
     );
 
     const aggregateLockTx = AggregateTransaction.createComplete(
@@ -515,7 +533,8 @@ import {
         hashLockTx.toAggregate(assetAccount.publicAccount)
       ],
       getNetworkType(),
-      []
+      [],
+      UInt64.fromUint(1000000)
     );
 
     const lockSignedTx = currentOwnerAccount.sign(aggregateLockTx, GENERATION_HASH);
@@ -523,7 +542,7 @@ import {
     txHttp
       .announce(lockSignedTx)
       .subscribe(x => {
-          console.log("Locked!!");
+        console.log("Locked!!");
       }, err => console.error(err));
 
     //ロックが承認されたらトランザクションを投げる
@@ -531,14 +550,12 @@ import {
     listener
       .confirmed(assetAccount.address)
       .pipe(
-          filter((tx:Transaction) => tx.transactionInfo !== undefined && tx.transactionInfo.hash === lockSignedTx.hash),
-          mergeMap(ignored => txHttp.announceAggregateBonded(signedTx))
+        filter((tx:Transaction) => tx.transactionInfo !== undefined && tx.transactionInfo.hash === lockSignedTx.hash),
+        mergeMap(ignored => txHttp.announceAggregateBonded(signedTx))
       )
       .subscribe(_ => {
-              console.log("announce bond");
-          },
-          err => console.error(err)
-      );
+        console.log("announce bond");
+      }, err => console.error(err));
 
     listener
       .aggregateBondedAdded(assetAccount.address)

@@ -14,7 +14,7 @@ import {
   export const txHttp = new TransactionHttp(CATAPULT_URL);
 
   export const getNetworkType = () => {
-    return NetworkType.MIJIN_TEST;
+    return NetworkType.TEST_NET;
   };
 
   export const listenerUtil = ({
